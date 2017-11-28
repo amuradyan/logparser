@@ -2,6 +2,11 @@ package logparser;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import logparser.exception.LogLineParseException;
 
 /**
  * Created by spectrum on 11/28/2017.
@@ -11,31 +16,38 @@ public class Record {
   private String threadId;
   private UserContext userContext;
   private Integer requestDuration;
+  private String endpointUrl;
+  private List<String> payload = new ArrayList<>();
 
   private Record() {
   }
 
-  public static Record parseFromLogLine(String logLine) throws LogLineParseException{
+  public static Record parseFromLogLine(String logLine) throws LogLineParseException {
     Record record = new Record();
 
-    String[] tokens = logLine.split(" ");
+    List<String> tokens = Arrays.asList(logLine.split(" "));
 
-    if (tokens.length > 0){
-      String fullTime = tokens[0] + " " + tokens[1];
+    if (!tokens.isEmpty()){
+      String fullTime = tokens.get(0) + " " + tokens.get(1);
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS");
       record.setTime(LocalDateTime.parse(fullTime, formatter));
 
-      record.setThreadId(tokens[2]);
+      record.setThreadId(tokens.get(2));
 
-      String[] userContext = tokens[2].split(":");
+      String[] userContext = (tokens.get(3)).split(":");
       if(userContext.length == 2){
         record.setUserContext(new UserContext(userContext[0], userContext[1]));
       } else {
         record.setUserContext(new UserContext());
       }
 
+      record.setEndpointUrl(tokens.get(4));
+
+      if (!tokens.get(5).equals("in"))
+        record.setPayload(tokens.subList(5, tokens.size() - 2));
+
       try {
-        Integer requestDuration = Integer.parseInt(tokens[tokens.length - 1]);
+        Integer requestDuration = Integer.parseInt(tokens.get(tokens.size() - 1));
 
         record.setRequestDuration(requestDuration);
       } catch (NumberFormatException e) {
@@ -44,6 +56,27 @@ public class Record {
     }
 
     return record;
+  }
+
+  public boolean isResource() {
+    return endpointUrl.startsWith("get") || endpointUrl.startsWith("update") ||
+           endpointUrl.startsWith("/load") || endpointUrl.startsWith("/new");
+  }
+
+  public List<String> getPayload() {
+    return payload;
+  }
+
+  public void setPayload(List<String> payload) {
+    this.payload = payload;
+  }
+
+  public String getEndpointUrl() {
+    return endpointUrl;
+  }
+
+  public void setEndpointUrl(String endpointUrl) {
+    this.endpointUrl = endpointUrl;
   }
 
   public LocalDateTime getTime() {

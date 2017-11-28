@@ -1,4 +1,4 @@
-package logparser;
+package logparser.exception;
 
 /**
  * Created by spectrum on 11/28/2017.

@@ -24,7 +24,7 @@
         <mkdir dir="dist/jar"/>
         <jar destfile="dist/jar/logparser.jar" basedir="build/">
             <manifest>
-                <attribute name="Main-Class" value="logparser.Main"/>
+                <attribute name="Main-Class" value="logparser.Application"/>
             </manifest>
         </jar>
     </target>

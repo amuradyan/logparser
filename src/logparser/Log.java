@@ -7,77 +7,102 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import logparser.exception.LogLineParseException;
 
 /**
  * Created by spectrum on 11/28/2017.
  */
 public class Log {
-  private File log;
-  private List<Record> records = new ArrayList<>();
+  private List<Record> allRecords = new ArrayList<>();
+  Map<Record, Integer> resourcesSortedByAverageRequestDuration = new HashMap<>();
 
   private Log() {
   }
 
-  public static Log create(String logFilePath){
+  public static Log create(String logFilePath) throws IOException {
+    List<Record> allRecords = new ArrayList<>();
+    Map<Record, Integer>  resourcesToAverageRequestDuration = new HashMap<>();
+    Map<Record, Integer>  resourcesToOccurrence = new HashMap<>();
 
     File logFile = new File(logFilePath);
 
-    Log log = new Log();
-    log.setLog(logFile);
-
-    return log;
-  }
-
-  public void setLog(File log) {
-    this.log = log;
-  }
-
-  public void process() throws IOException {
-    readFileByLine();
-  }
-
-  private void readFileByLine() throws IOException {
-    try (BufferedReader br = new BufferedReader(new FileReader(log))) {
+    try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
       String line;
       Integer lineNumber = 0;
 
       while ((line = br.readLine()) != null) {
         lineNumber++;
         try {
-          records.add(Record.parseFromLogLine(line));
+          Record record = Record.parseFromLogLine(line);
+          allRecords.add(record);
+
+          if (record.isResource()) {
+            Integer pastOccurrences = resourcesToOccurrence.get(record);
+
+            if(pastOccurrences == null){
+              resourcesToAverageRequestDuration.put(record, record.getRequestDuration());
+              resourcesToOccurrence.put(record, 1);
+            } else {
+              Integer computedAverage = resourcesToAverageRequestDuration.get(record);
+              Integer updatedAverage =
+                  computedAverage + (record.getRequestDuration() - computedAverage) / pastOccurrences;
+
+              resourcesToAverageRequestDuration.put(record, updatedAverage);
+              resourcesToOccurrence.put(record, pastOccurrences++);
+            }
+          }
+
         } catch (LogLineParseException e) {
           System.err.println("Unable to convert line " + lineNumber + " to record");
         }
-
-        System.out.println(line);
       }
 
-      records.sort((o1, o2) -> o1.getTime().compareTo(o2.getTime()));
-
-      drawHistogram();
+      allRecords.sort((o1, o2) -> o1.getTime().compareTo(o2.getTime()));
     }
+
+    Log log = new Log();
+    log.setAllRecords(allRecords);
+    log.setResourcesSortedByAverageRequestDuration(sortByValue(resourcesToAverageRequestDuration));
+
+    return log;
   }
 
-  private void drawHistogram(){
+  public void setAllRecords(List<Record> allRecords) {
+    this.allRecords = allRecords;
+  }
+
+
+  public void drawHistogram(){
     System.out.println("\n\n2. Histogram");
 
     drawHistogramHeader();
     drawHistogramRows();
   }
 
+  private void drawHistogramHeader() {
+    System.out.println("Date and Time           | Number of requests / 10 ");
+    System.out.println("yyyy-MM-dd HH:(mm - mm) |                         ");
+    System.out.println("--------------------------------------------------");
+  }
+
   private void drawHistogramRows() {
     LocalDateTime currentTime = null;
     LinkedList<Record> recordInSameHour = new LinkedList<>();
 
-    for (Record record : records) {
+    for (Record record : allRecords) {
       if (currentTime == null) {
         currentTime = record.getTime();
         recordInSameHour.addLast(record);
       }
       else if(currentTime.toLocalDate().equals(record.getTime().toLocalDate()) &&
-              currentTime.getHour() == record.getTime().getHour())
+          currentTime.getHour() == record.getTime().getHour())
       {
         recordInSameHour.addLast(record);
       }
@@ -91,12 +116,6 @@ public class Log {
     }
 
     renderHistogramRow(recordInSameHour);
-  }
-
-  private void drawHistogramHeader() {
-    System.out.println("Date and Time           | Number of requests / 10 ");
-    System.out.println("yyyy-MM-dd HH:(mm - mm) |                         ");
-    System.out.println("--------------------------------------------------");
   }
 
   private void renderHistogramRow(LinkedList<Record> recordInSameHour) {
@@ -114,25 +133,31 @@ public class Log {
     System.out.println(String.format("%s | %s", dateTime, requestDiv10Chart));
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+  public void printTopNResourcesWithHighestAverageRequestDuration(Integer topN) {
+    System.out.println("\n\n1. Top " + topN + " resources with highest average request duration");
+    System.out.println();
 
-    Log log1 = (Log) o;
+    Integer threshold = topN > resourcesSortedByAverageRequestDuration.size() ?
+        resourcesSortedByAverageRequestDuration.size() : topN;
 
-    return log.equals(log1.log);
+    Integer counter = 0;
+    for (Map.Entry<Record, Integer> entry : resourcesSortedByAverageRequestDuration.entrySet()) {
+      if (counter == threshold)
+        break;
+
+      counter++;
+      System.out.println(entry.getValue() + " ms - " + entry.getKey());
+    }
   }
 
-  @Override
-  public int hashCode() {
-    return log.hashCode();
+  public void setResourcesSortedByAverageRequestDuration(Map<Record, Integer> resourcesSortedByAverageRequestDuration) {
+    this.resourcesSortedByAverageRequestDuration = resourcesSortedByAverageRequestDuration;
   }
 
-  @Override
-  public String toString() {
-    return "Log{" +
-        "log=" + log +
-        '}';
+  private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+    return map.entrySet()
+        .stream()
+        .sorted(Map.Entry.comparingByValue(Collections.reverseOrder()))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
   }
 }
