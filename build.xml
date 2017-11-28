@@ -1,6 +1,6 @@
 <project name="LogParser" default="dist" basedir=".">
     <description>
-        simple example build file
+        LogParser build file
     </description>
     <!-- set global properties for this build -->
     <property name="src" location="src"/>
