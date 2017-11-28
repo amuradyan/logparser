@@ -7,11 +7,10 @@ public class Application {
   public static void main(String[] args) {
     long then = System.currentTimeMillis();
 
+    printHeader();
+
     if(args.length == 1){
       switch (args[0]){
-        case "-sw":
-          System.out.println("Star wars");
-          break;
         default:
           printHelp();
       }
@@ -45,4 +44,12 @@ public class Application {
     System.out.println("Usage: java -jar logparser.jar <log file path> <n>");
     System.out.println("n - Number of top resources with highest average request duration to be printed");
   }
+
+  private static void printHeader(){
+    System.out.println(" __        ______     _______ .______      ___      .______          _______. _______ .______      ");
+    System.out.println("|  |      /  __  \\   /  _____||   _  \\    /   \\     |   _  \\        /       ||   ____||   _  \\     ");
+    System.out.println("|  |     |  |  |  | |  |  __  |  |_)  |  /  ^  \\    |  |_)  |      |   (----`|  |__   |  |_)  |    ");
+    System.out.println("|  |     |  |  |  | |  | |_ | |   ___/  /  /_\\  \\   |      /        \\   \\    |   __|  |      /     ");
+    System.out.println("|  `----.|  `--'  | |  |__| | |  |     /  _____  \\  |  |\\  \\----.----)   |   |  |____ |  |\\  \\----.");
+    System.out.println("|_______| \\______/   \\______| | _|    /__/     \\__\\ | _| `._____|_______/    |_______|| _| `._____|");  }
 }

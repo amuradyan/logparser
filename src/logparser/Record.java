@@ -32,7 +32,7 @@ public class Record {
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS");
       record.setTime(LocalDateTime.parse(fullTime, formatter));
 
-      record.setThreadId(tokens.get(2));
+      record.setThreadId(tokens.get(2).substring(1, tokens.get(2).length() - 1));
 
       String[] userContext = (tokens.get(3)).split(":");
       if(userContext.length == 2){
