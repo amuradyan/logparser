@@ -23,8 +23,7 @@ public class Log {
   private List<Record> allRecords = new ArrayList<>();
   Map<Record, Integer> resourcesSortedByAverageRequestDuration = new HashMap<>();
 
-  private Log() {
-  }
+  private Log() {}
 
   public static Log create(String logFilePath) throws IOException {
     List<Record> allRecords = new ArrayList<>();
@@ -78,6 +77,26 @@ public class Log {
     this.allRecords = allRecords;
   }
 
+  public void setResourcesSortedByAverageRequestDuration(Map<Record, Integer> resourcesSortedByAverageRequestDuration) {
+    this.resourcesSortedByAverageRequestDuration = resourcesSortedByAverageRequestDuration;
+  }
+
+  public void printTopNResourcesWithHighestAverageRequestDuration(Integer topN) {
+    System.out.println("\n\n1. Top " + topN + " resources with highest average request duration");
+    System.out.println();
+
+    Integer threshold = topN > resourcesSortedByAverageRequestDuration.size() ?
+        resourcesSortedByAverageRequestDuration.size() : topN;
+
+    Integer counter = 0;
+    for (Map.Entry<Record, Integer> entry : resourcesSortedByAverageRequestDuration.entrySet()) {
+      if (counter == threshold)
+        break;
+
+      counter++;
+      System.out.println(entry.getValue() + " ms - " + entry.getKey());
+    }
+  }
 
   public void drawHistogram(){
     System.out.println("\n\n2. Histogram");
@@ -131,27 +150,6 @@ public class Log {
     String requestDiv10Chart = String.join("", Collections.nCopies(requestsDiv10.intValue(), "|"));
 
     System.out.println(String.format("%s | %s", dateTime, requestDiv10Chart));
-  }
-
-  public void printTopNResourcesWithHighestAverageRequestDuration(Integer topN) {
-    System.out.println("\n\n1. Top " + topN + " resources with highest average request duration");
-    System.out.println();
-
-    Integer threshold = topN > resourcesSortedByAverageRequestDuration.size() ?
-        resourcesSortedByAverageRequestDuration.size() : topN;
-
-    Integer counter = 0;
-    for (Map.Entry<Record, Integer> entry : resourcesSortedByAverageRequestDuration.entrySet()) {
-      if (counter == threshold)
-        break;
-
-      counter++;
-      System.out.println(entry.getValue() + " ms - " + entry.getKey());
-    }
-  }
-
-  public void setResourcesSortedByAverageRequestDuration(Map<Record, Integer> resourcesSortedByAverageRequestDuration) {
-    this.resourcesSortedByAverageRequestDuration = resourcesSortedByAverageRequestDuration;
   }
 
   private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {

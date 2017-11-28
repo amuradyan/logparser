@@ -19,8 +19,7 @@ public class Record {
   private String endpointUrl;
   private List<String> payload = new ArrayList<>();
 
-  private Record() {
-  }
+  private Record() {}
 
   public static Record parseFromLogLine(String logLine) throws LogLineParseException {
     Record record = new Record();

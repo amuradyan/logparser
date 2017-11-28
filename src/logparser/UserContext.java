@@ -12,8 +12,7 @@ class UserContext {
     this.right = right;
   }
 
-  public UserContext(){
-  }
+  public UserContext(){}
 
   @Override
   public boolean equals(Object o) {
