@@ -32,38 +32,40 @@ public class Log {
 
     File logFile = new File(logFilePath);
 
-    try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
-      String line;
-      Integer lineNumber = 0;
+    if (logFilePath != null) {
+      try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
+        String line;
+        Integer lineNumber = 0;
 
-      while ((line = br.readLine()) != null) {
-        lineNumber++;
-        try {
-          Record record = Record.parseFromLogLine(line);
-          allRecords.add(record);
+        while ((line = br.readLine()) != null) {
+          lineNumber++;
+          try {
+            Record record = Record.parseFromLogLine(line);
+            allRecords.add(record);
 
-          if (record.isResource()) {
-            Integer pastOccurrences = resourcesToOccurrence.get(record);
+            if (record.isResource()) {
+              Integer pastOccurrences = resourcesToOccurrence.get(record);
 
-            if(pastOccurrences == null){
-              resourcesToAverageRequestDuration.put(record, record.getRequestDuration());
-              resourcesToOccurrence.put(record, 1);
-            } else {
-              Integer computedAverage = resourcesToAverageRequestDuration.get(record);
-              Integer updatedAverage =
-                  computedAverage + (record.getRequestDuration() - computedAverage) / pastOccurrences;
+              if(pastOccurrences == null){
+                resourcesToAverageRequestDuration.put(record, record.getRequestDuration());
+                resourcesToOccurrence.put(record, 1);
+              } else {
+                Integer computedAverage = resourcesToAverageRequestDuration.get(record);
+                Integer updatedAverage =
+                    computedAverage + (record.getRequestDuration() - computedAverage) / pastOccurrences;
 
-              resourcesToAverageRequestDuration.put(record, updatedAverage);
-              resourcesToOccurrence.put(record, pastOccurrences++);
+                resourcesToAverageRequestDuration.put(record, updatedAverage);
+                resourcesToOccurrence.put(record, pastOccurrences++);
+              }
             }
+
+          } catch (LogLineParseException e) {
+            System.err.println("Unable to convert line " + lineNumber + " to record");
           }
-
-        } catch (LogLineParseException e) {
-          System.err.println("Unable to convert line " + lineNumber + " to record");
         }
-      }
 
-      allRecords.sort((o1, o2) -> o1.getTime().compareTo(o2.getTime()));
+        allRecords.sort((o1, o2) -> o1.getTime().compareTo(o2.getTime()));
+      }
     }
 
     Log log = new Log();

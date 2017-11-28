@@ -59,7 +59,8 @@ public class Record {
 
   public boolean isResource() {
     return endpointUrl.startsWith("get") || endpointUrl.startsWith("update") ||
-           endpointUrl.startsWith("/load") || endpointUrl.startsWith("/new");
+           endpointUrl.startsWith("/load") || endpointUrl.startsWith("/new") ||
+           endpointUrl.contains(".pdf");
   }
 
   public List<String> getPayload() {

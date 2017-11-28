@@ -35,7 +35,7 @@ public class Application {
     }
 
     long now = System.currentTimeMillis();
-    System.out.println("\n\n3. Execution time: ~" + (now - then) / 1000 + " seconds");
+    System.out.println("\n\n3. Execution time: ~" + (now - then) + " milliseconds");
   }
 
   private static void printHelp() {
