@@ -10,10 +10,7 @@ public class Application {
     printHeader();
 
     if(args.length == 1){
-      switch (args[0]){
-        default:
           printHelp();
-      }
     } else if (args.length == 2) {
       try {
         String logFilePath = args[0];

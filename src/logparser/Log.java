@@ -30,9 +30,9 @@ public class Log {
     Map<Record, Integer>  resourcesToAverageRequestDuration = new HashMap<>();
     Map<Record, Integer>  resourcesToOccurrence = new HashMap<>();
 
-    File logFile = new File(logFilePath);
 
     if (logFilePath != null) {
+      File logFile = new File(logFilePath);
       try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
         String line;
         Integer lineNumber = 0;
@@ -83,11 +83,11 @@ public class Log {
     this.resourcesSortedByAverageRequestDuration = resourcesSortedByAverageRequestDuration;
   }
 
-  public void printTopNResourcesWithHighestAverageRequestDuration(Integer topN) {
+  public void printTopNResourcesWithHighestAverageRequestDuration(int topN) {
     System.out.println("\n\n1. Top " + topN + " resources with highest average request duration");
     System.out.println();
 
-    Integer threshold = topN > resourcesSortedByAverageRequestDuration.size() ?
+    int threshold = topN > resourcesSortedByAverageRequestDuration.size() ?
         resourcesSortedByAverageRequestDuration.size() : topN;
 
     Integer counter = 0;
@@ -147,7 +147,7 @@ public class Log {
                                                                   recordInSameHour.getFirst().getTime(),
                                                                   recordInSameHour.getLast().getTime());
 
-    Long requestsDiv10 = Math.round(recordInSameHour.size() / 10 + 0.5);
+    Long requestsDiv10 = Math.round((double)(recordInSameHour.size()) / 10 + 0.5);
 
     String requestDiv10Chart = String.join("", Collections.nCopies(requestsDiv10.intValue(), "|"));
 
