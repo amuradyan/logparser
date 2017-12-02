@@ -9,9 +9,7 @@ public class Application {
 
     printHeader();
 
-    if(args.length == 1){
-          printHelp();
-    } else if (args.length == 2) {
+    if (args.length == 2) {
       try {
         String logFilePath = args[0];
         Integer topN = Integer.parseInt(args[1]);
