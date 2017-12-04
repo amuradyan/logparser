@@ -17,8 +17,9 @@
     </target>
 
     <target name="dist">
+        <antcall target="compile" />
         <mkdir dir="dist/jar"/>
-        <jar destfile="dist/jar/logparser.jar" basedir="build/">
+        <jar destfile="dist/jar/assignment.jar" basedir="build/">
             <manifest>
                 <attribute name="Main-Class" value="logparser.Application"/>
             </manifest>

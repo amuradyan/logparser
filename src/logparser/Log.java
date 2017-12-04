@@ -46,7 +46,7 @@ public class Log {
             if (record.isResource()) {
               Integer pastOccurrences = resourcesToOccurrence.get(record);
 
-              if(pastOccurrences == null){
+              if(pastOccurrences == null) {
                 resourcesToAverageRequestDuration.put(record, record.getRequestDuration());
                 resourcesToOccurrence.put(record, 1);
               } else {

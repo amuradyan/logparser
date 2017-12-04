@@ -63,16 +63,8 @@ public class Record {
            endpointUrl.contains(".pdf");
   }
 
-  public List<String> getPayload() {
-    return payload;
-  }
-
   public void setPayload(List<String> payload) {
     this.payload = payload;
-  }
-
-  public String getEndpointUrl() {
-    return endpointUrl;
   }
 
   public void setEndpointUrl(String endpointUrl) {
@@ -87,16 +79,8 @@ public class Record {
     this.time = time;
   }
 
-  public String getThreadId() {
-    return threadId;
-  }
-
   public void setThreadId(String threadId) {
     this.threadId = threadId;
-  }
-
-  public UserContext getUserContext() {
-    return userContext;
   }
 
   public void setUserContext(UserContext userContext) {
@@ -140,6 +124,8 @@ public class Record {
         ", threadId='" + threadId + '\'' +
         ", userContext=" + userContext +
         ", requestDuration=" + requestDuration +
+        ", endpointUrl='" + endpointUrl + '\'' +
+        ", payload=" + payload +
         '}';
   }
 }
